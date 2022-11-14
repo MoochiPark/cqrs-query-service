@@ -8,4 +8,9 @@ interface FindSensingDataViewUseCase {
     suspend fun findAllBySerialNumber(
         serialNumber: String,
     ): List<SensingDataResponse.Find>
+
+    suspend fun findLatestNBySerialNumber(
+        serialNumber: String,
+        count: Long
+    ): List<SensingDataResponse.Find>
 }
