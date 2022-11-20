@@ -5,6 +5,9 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.api.coroutines.RedisCoroutinesCommands
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.system.measureTimeMillis
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.daewon.thesis.cqrsqueryservice.application.port.out.FindSensingDataViewPort
 import me.daewon.thesis.cqrsqueryservice.application.port.out.UpdateSensingDataViewPort
 import me.daewon.thesis.cqrsqueryservice.config.mapper
@@ -29,7 +32,7 @@ class SensingDataRedisAdapter(
             )
         }
         time.addAndGet(millis)
-        if (length!! % 200_000L == 0L) {
+        if (length!! % 1_000L == 0L) {
             println(time)
             time.set(0)
         }
@@ -37,13 +40,14 @@ class SensingDataRedisAdapter(
     }
 
     override suspend fun findLatestBySerialNumber(serialNumber: String): SensingData =
-        redisApi.lindex(serialNumber, -1)
-            ?.let {
-                mapper.readValue<SensingDataValue>(it)
-                    .toDomain(serialNumber)
-            }
-            ?: throw IllegalStateException("해당하는 센싱 데이터가 없습니다.")
-
+        withContext(Dispatchers.Default) {
+            redisApi.lindex(serialNumber, -1)
+                ?.let {
+                    mapper.readValue<SensingDataValue>(it)
+                        .toDomain(serialNumber)
+                }
+                ?: throw IllegalStateException("해당하는 센싱 데이터가 없습니다.")
+        }
 
     override suspend fun findAllBySerialNumber(serialNumber: String): List<SensingData> =
         redisApi.lrange(serialNumber, 0, -1)
@@ -53,9 +57,11 @@ class SensingDataRedisAdapter(
             }
 
     override suspend fun findLatestNBySerialNumber(serialNumber: String, count: Long): List<SensingData> =
+        withContext(Dispatchers.Default) {
         redisApi.lrange(serialNumber, count.unaryMinus(), -1)
             .map {
                 mapper.readValue<SensingDataValue>(it)
                     .toDomain(serialNumber)
             }
-    }
+        }
+}

@@ -455,4 +455,6 @@ gradle-app.setting
 *.cmd
 *.btm
 
+src/main/resources/docker/dragonfly/data/
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,jetbrains+all,intellij+all,intellij+iml,java-web,java,kotlin,node,git,gradle

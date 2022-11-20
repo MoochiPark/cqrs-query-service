@@ -7,8 +7,11 @@ spring:
     virtual-host: test
 
   redis:
-    host: localhost
+    host: 192.168.30.221
     port: 6379
 
 server:
   port: 8090
+logging:
+  level:
+    org.springframework.amqp.rabbit: ERROR

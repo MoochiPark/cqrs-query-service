@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  redis:
+    image: redis:7.0.5
+    container_name: redis
+    hostname: redis
+    network_mode: host
+    ulimits:
+      memlock: -1
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "${REDIS_HOME}/data:/data"
